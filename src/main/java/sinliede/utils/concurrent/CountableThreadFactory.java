@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * this class could automatically upgrade the thread number it generates for threadPoolExecutor
  * according to how many workers the threadPoolExecutor currently has.
  * <pre>{@code
- *     CountableThreadFactory threadFactory = new CountableThreadFactory(Thread.currentThread().getThreadGroup(),"child-thread");
+ *     CountableThreadFactory threadFactory = new CountableThreadFactory("child-thread", Thread.currentThread().getThreadGroup());
  *     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 100, 60L,
  *           TimeUnit.SECONDS, new LinkedBlockingQueue<>(), threadFactory);
  *     threadFactory.setThreadPoolExecutor(threadPoolExecutor);
