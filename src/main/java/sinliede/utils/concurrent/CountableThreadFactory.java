@@ -6,9 +6,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * a thread factory used for ThreadPoolExecutor{@link java.util.concurrent.ThreadPoolExecutor}
  * this class could automatically upgrade the thread number it generates for threadPoolExecutor
- * according to how many workers the threadPoolExecutor currently has
+ * according to how many workers the threadPoolExecutor currently has.
  * <pre>{@code
- *     CountableThreadFactory threadFactory = new CountableThreadFactory("child-thread");
+ *     CountableThreadFactory threadFactory = new CountableThreadFactory(Thread.currentThread().getThreadGroup(),"child-thread");
  *     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 100, 60L,
  *           TimeUnit.SECONDS, new LinkedBlockingQueue<>(), threadFactory);
  *     threadFactory.setThreadPoolExecutor(threadPoolExecutor);
@@ -23,20 +23,24 @@ public class CountableThreadFactory implements ThreadFactory {
     // the ThreadPoolExecutor using this factory
     private ThreadPoolExecutor threadPoolExecutor;
 
+    //the ThreadGroup that all threads this factory manufactured belong
+    private ThreadGroup threadGroup;
+
     private String namePrefix;
 
-    public CountableThreadFactory(String namePrefix) {
+    public CountableThreadFactory(String namePrefix, ThreadGroup threadGroup) {
         this.namePrefix = namePrefix;
+        this.threadGroup = threadGroup;
     }
 
-    public CountableThreadFactory(ThreadPoolExecutor threadPoolExecutor, String namePrefix) {
-        this.threadPoolExecutor = threadPoolExecutor;
+    public CountableThreadFactory(String namePrefix, ThreadGroup threadGroup, ThreadPoolExecutor threadPoolExecutor) {
         this.namePrefix = namePrefix;
-    }
+        this.threadGroup = threadGroup;
+        this.threadPoolExecutor = threadPoolExecutor; }
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(Thread.currentThread().getThreadGroup(), r, namePrefix + (threadPoolExecutor.getActiveCount() + 1));
+        Thread t = new Thread(threadGroup, r, namePrefix + (threadPoolExecutor.getActiveCount() + 1));
 
         if (t.isDaemon()) {
             t.setDaemon(false);
