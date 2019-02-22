@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * a thread factory used for ThreadPoolExecutor{@link java.util.concurrent.ThreadPoolExecutor}
+ * a thread factory used for ThreadPoolExecutor{@link ThreadPoolExecutor}
  * this class could automatically upgrade the thread number it generates for threadPoolExecutor
  * according to how many workers the threadPoolExecutor currently has.
  * <pre>{@code
@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  *
  * @author sinliede
  * @date 19-1-9 上午11:50
- * @see java.util.concurrent.ThreadFactory
+ * @see ThreadFactory
  */
 public class CountableThreadFactory implements ThreadFactory {
 
@@ -28,19 +28,26 @@ public class CountableThreadFactory implements ThreadFactory {
 
     private String namePrefix;
 
-    public CountableThreadFactory(String namePrefix, ThreadGroup threadGroup) {
+    public CountableThreadFactory(String namePrefix) {
         this.namePrefix = namePrefix;
+    }
+
+    public CountableThreadFactory(String namePrefix, ThreadGroup threadGroup) {
+        this(namePrefix);
         this.threadGroup = threadGroup;
     }
 
     public CountableThreadFactory(String namePrefix, ThreadGroup threadGroup, ThreadPoolExecutor threadPoolExecutor) {
-        this.namePrefix = namePrefix;
-        this.threadGroup = threadGroup;
+        this(namePrefix, threadGroup);
         this.threadPoolExecutor = threadPoolExecutor; }
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(threadGroup, r, namePrefix + (threadPoolExecutor.getActiveCount() + 1));
+        ThreadGroup group = threadGroup;
+        if (null == group) {
+            group = Thread.currentThread().getThreadGroup();
+        }
+        Thread t = new Thread(group, r, namePrefix + (threadPoolExecutor.getActiveCount() + 1));
 
         if (t.isDaemon()) {
             t.setDaemon(false);
