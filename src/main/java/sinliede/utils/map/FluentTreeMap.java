@@ -1,4 +1,4 @@
-package sinliede.utils.concurrent.map;
+package sinliede.utils.map;
 
 import java.util.Comparator;
 import java.util.Map;
